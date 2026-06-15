@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartLoan – {{ loan.shop_name }} QR</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <!-- QR Code library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <header class="site-header site-header--compact">
+      <div class="logo">
+        <span class="logo-icon">₹</span>
+        <span class="logo-text">SmartLoan</span>
+      </div>
+      <nav class="nav-links">
+        <a href="{{ url_for('index') }}">Setup</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      </nav>
+    </header>
+
+    <main class="qr-main" data-deduction-pct="{{ loan.deduction_pct }}">
+      <div class="qr-card">
+        <p class="qr-store-label">Scan &amp; Pay</p>
+        <h1 class="qr-store-name">{{ loan.shop_name }}</h1>
+
+        <div class="qr-box" id="qrcode"></div>
+
+        <div class="loan-mini-stats">
+          <div class="mini-stat">
+            <span class="mini-val">{{ loan.deduction_pct }}%</span>
+            <span class="mini-label">Auto loan deduction</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-val">₹{{ "{:,.0f}".format(loan.remaining_loan) }}</span>
+            <span class="mini-label">Remaining loan</span>
+          </div>
+        </div>
+
+        <div class="simulate-section">
+          <h2>Simulate Customer Payment</h2>
+          <form action="{{ url_for('simulate') }}" method="POST" class="simulate-form">
+            <div class="simulate-input-row">
+              <span class="rupee-prefix">₹</span>
+              <input type="number" name="payment_amount" id="paymentAmount" placeholder="Enter amount" min="1" step="1" required/>
+            </div>
+
+            <div class="split-preview" id="splitPreview" style="display:none;">
+              <div class="split-bar">
+                <div class="split-fill" id="splitFill" style="width:90%"></div>
+              </div>
+              <div class="split-labels">
+                <span class="split-you"><span id="previewYou">—</span> to you</span>
+                <span class="split-loan"><span id="previewLoan">—</span> to loan</span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">Submit Payment</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Generate QR
+    new QRCode(document.getElementById("qrcode"), {
+      text: "upi://pay?pa=smartloan@upi&pn={{ loan.shop_name | urlencode }}&am=&cu=INR",
+      width: 200,
+      height: 200,
+      colorDark: "#1a1a2e",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

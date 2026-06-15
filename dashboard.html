@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartLoan – Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <header class="site-header site-header--compact">
+      <div class="logo">
+        <span class="logo-icon">₹</span>
+        <span class="logo-text">SmartLoan</span>
+      </div>
+      <nav class="nav-links">
+        <a href="{{ url_for('index') }}">Setup</a>
+        <a href="{{ url_for('merchant_qr') }}">QR Screen</a>
+      </nav>
+    </header>
+
+    <main class="dash-main">
+      <div class="dash-header">
+        <div>
+          <h1 class="dash-title">{{ loan.shop_name }}</h1>
+          <p class="dash-sub">Loan started {{ loan.created_at[:10] }}</p>
+        </div>
+        <form action="{{ url_for('reset') }}" method="POST" onsubmit="return confirm('Reset all loan data?')">
+          <button type="submit" class="btn btn-danger-outline">Reset Loan</button>
+        </form>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="progress-label">Loan Repayment Progress</span>
+          <span class="progress-pct">{{ progress }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: {{ progress }}%"></div>
+        </div>
+        <div class="progress-footer">
+          <span>₹{{ "{:,.0f}".format(loan.total_repaid) }} repaid</span>
+          <span>₹{{ "{:,.0f}".format(loan.total_due) }} total due</span>
+        </div>
+      </div>
+
+      <!-- Metric Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <p class="metric-label">Loan Amount</p>
+          <p class="metric-val">₹{{ "{:,.0f}".format(loan.loan_amount) }}</p>
+        </div>
+        <div class="metric-card metric-card--accent">
+          <p class="metric-label">Remaining Loan</p>
+          <p class="metric-val">₹{{ "{:,.0f}".format(loan.remaining_loan) }}</p>
+        </div>
+        <div class="metric-card metric-card--green">
+          <p class="metric-label">Amount Repaid</p>
+          <p class="metric-val">₹{{ "{:,.0f}".format(loan.total_repaid) }}</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Deduction %</p>
+          <p class="metric-val">{{ loan.deduction_pct }}%</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">No. of Transactions</p>
+          <p class="metric-val">{{ loan.transactions | length }}</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Est. Completion</p>
+          <p class="metric-val metric-val--sm">{{ est_completion }}</p>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="txn-section">
+        <h2 class="txn-title">Transaction History</h2>
+
+        {% if loan.transactions %}
+        <div class="txn-table-wrap">
+          <table class="txn-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date &amp; Time</th>
+                <th>Customer Paid</th>
+                <th>Shopkeeper Gets</th>
+                <th>Loan Repaid</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for txn in loan.transactions | reverse %}
+              <tr>
+                <td class="txn-id">#{{ txn.id }}</td>
+                <td class="txn-time">{{ txn.timestamp }}</td>
+                <td class="txn-payment">₹{{ "{:,.2f}".format(txn.payment) }}</td>
+                <td class="txn-shop">₹{{ "{:,.2f}".format(txn.shopkeeper_gets) }}</td>
+                <td class="txn-loan">₹{{ "{:,.2f}".format(txn.loan_deduction) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="txn-empty">
+          <p class="txn-empty-icon">📋</p>
+          <p>No transactions yet.</p>
+          <a href="{{ url_for('merchant_qr') }}" class="btn btn-primary">Simulate a Payment</a>
+        </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

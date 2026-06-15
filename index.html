@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartLoan – Setup</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <header class="site-header">
+      <div class="logo">
+        <span class="logo-icon">₹</span>
+        <span class="logo-text">SmartLoan</span>
+      </div>
+      <p class="tagline">Embedded loan repayment for small merchants</p>
+    </header>
+
+    {% if loan %}
+    <!-- Active Loan Banner -->
+    <div class="active-banner">
+      <div class="banner-inner">
+        <div>
+          <p class="banner-label">Active loan detected for</p>
+          <p class="banner-shop">{{ loan.shop_name }}</p>
+        </div>
+        <div class="banner-actions">
+          <a href="{{ url_for('merchant_qr') }}" class="btn btn-primary">Go to QR Screen</a>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Dashboard</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <main class="setup-main">
+      <div class="setup-card">
+        <h1 class="setup-title">Loan Setup</h1>
+        <p class="setup-sub">Enter your loan details to get started. Every customer payment will automatically split to repay your loan.</p>
+
+        <form action="{{ url_for('setup') }}" method="POST" class="setup-form">
+
+          <div class="form-group">
+            <label for="shop_name">Shop Name</label>
+            <input type="text" id="shop_name" name="shop_name" placeholder="e.g. Nishtha General Store" required value="{{ loan.shop_name if loan else '' }}"/>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="loan_amount">Loan Amount (₹)</label>
+              <input type="number" id="loan_amount" name="loan_amount" placeholder="50000" min="1000" step="500" required value="{{ loan.loan_amount if loan else '' }}"/>
+            </div>
+            <div class="form-group">
+              <label for="duration_months">Duration (months)</label>
+              <input type="number" id="duration_months" name="duration_months" placeholder="12" min="1" max="60" required value="{{ loan.duration_months if loan else '' }}"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="interest_rate">Interest Rate (%/year)</label>
+              <input type="number" id="interest_rate" name="interest_rate" placeholder="12" min="0" max="50" step="0.1" required value="{{ loan.interest_rate if loan else '' }}"/>
+            </div>
+            <div class="form-group">
+              <label for="deduction_pct">Deduction per Payment (%)</label>
+              <input type="number" id="deduction_pct" name="deduction_pct" placeholder="10" min="1" max="50" step="0.5" required value="{{ loan.deduction_pct if loan else '' }}"/>
+            </div>
+          </div>
+
+          <div class="calc-preview" id="calcPreview" style="display:none;">
+            <div class="calc-row">
+              <span>Total Interest</span><span id="previewInterest">—</span>
+            </div>
+            <div class="calc-row">
+              <span>Total Due</span><span id="previewTotal">—</span>
+            </div>
+            <div class="calc-row highlight">
+              <span>Per ₹1,000 payment, you repay</span><span id="previewDeduction">—</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            {% if loan %}Reset & Create New Loan{% else %}Create Loan{% endif %}
+          </button>
+        </form>
+      </div>
+
+      <!-- How it works -->
+      <div class="how-it-works">
+        <h2>How it works</h2>
+        <ol class="steps-list">
+          <li>
+            <span class="step-num">1</span>
+            <div>
+              <strong>Enter your loan details</strong>
+              <p>Set the loan amount, interest rate, and deduction percentage.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div>
+              <strong>Display your QR code</strong>
+              <p>Show the merchant QR to your customers for payments.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div>
+              <strong>Automatic split</strong>
+              <p>10% goes to loan repayment, 90% goes to your balance — automatically.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div>
+              <strong>Track on dashboard</strong>
+              <p>See remaining loan, repaid amount, and daily transaction history.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
